@@ -1,3 +1,3 @@
-# Budget Tracker In React Native
+# Tmp Mail App
 
 This App Is In Devolopment
