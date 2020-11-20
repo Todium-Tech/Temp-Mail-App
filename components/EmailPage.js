@@ -11,7 +11,11 @@ import {
   Alert,
   ToastAndroid,
   Modal,
-  TouchableHighlight
+  TouchableHighlight,
+  Animated,
+  Easing,
+  StatusBar,
+  Clipboard
 } from "react-native"
 
 const Dev_Height = Dimensions.get('window').height
@@ -19,7 +23,7 @@ const Dev_Width = Dimensions.get('window').width
 
 import Icon from "react-native-vector-icons/AntDesign"
 import {SwipeableFlatList} from 'react-native-swipeable-flat-list';
-import Clipboard from '@react-native-community/clipboard';
+import RBSheet from "react-native-raw-bottom-sheet";
 import moment from 'moment';
 
 const colors = ["#55E552","#FF8A00","#572CE8"]
@@ -31,13 +35,22 @@ function getRndInteger(min, max) {
 
 export default class EmailPage extends React.Component{
 
-  OnLongPressEmail= async (test)=>{
-      Clipboard.setString(test);
-      ToastAndroid.show("Copied To Clipboard", ToastAndroid.LONG);
+  OnLongPressEmail= (test)=>{
+      Clipboard.setString(test)
+      ToastAndroid.show(" Email Copied ", ToastAndroid.LONG);
     }
 
   componentDidMount(){
     this.getMyObject()
+    Animated.timing(this.state.verticalVal, {toValue: 10, duration: 1000, easing: Easing.inOut(Easing.quad)}).start();
+        this.state.verticalVal.addListener(({value}) => {
+            if (value == 10) {
+                Animated.timing(this.state.verticalVal, {toValue: 0, duration: 1000, easing: Easing.inOut(Easing.quad)}).start();
+            }
+            else if (value == 0) {
+                Animated.timing(this.state.verticalVal, {toValue: 10, duration: 1000, easing: Easing.inOut(Easing.quad)}).start();
+            }
+        })
   }
 
  constructor(props){
@@ -47,7 +60,9 @@ export default class EmailPage extends React.Component{
       email:"",
       data:[],
       value:0,
-      modalVisible:true
+      modalVisible:true,
+      copy_email:"",
+      verticalVal: new Animated.Value(0)
     }
   }
 
@@ -59,7 +74,7 @@ export default class EmailPage extends React.Component{
     })
    }
     else{
-      Alert.alert("Email Expired","This Email Has Expired. Kindly Delete This By Swiping The Email Card And Clicking On The X Mark")
+      this.RBSheet.open()
     }
   }
 
@@ -131,7 +146,7 @@ export default class EmailPage extends React.Component{
   }
 
   renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.email_touch} onPress={()=> this.onPressProps(item.email,item.time)} onLongPress={()=>this.OnLongPressEmail(item.email)}>
+   <TouchableOpacity style={styles.email_touch} onPress={()=> this.onPressProps(item.email,item.time)} onLongPress={()=>this.OnLongPressEmail(item.email)}>
       <View style={styles.email_main_view}>
         <View style={{height:"100%",width:"3%",backgroundColor:item.color,borderRadius:45}}/>
         <View style={styles.email_container}>
@@ -162,9 +177,46 @@ export default class EmailPage extends React.Component{
   render(){
     return(
       <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#1A1A1F" barStyle="light-content"/>
+      <RBSheet
+          ref={ref => {
+            this.RBSheet = ref;
+          }}
+          closeOnPressBack={true}
+          animationType="fade"
+          closeOnDragDown={true}
+          openDuration={300}
+          customStyles={{
+            container: {
+              borderTopLeftRadius:15,
+              borderTopRightRadius:15,
+              height:"30%",
+              backgroundColor:"#1A1A1F"
+            }
+          }}
+        >
+
+        <View style={styles.main_style_view_swipable}>
+          <Image 
+            resizeMode="contain" 
+            source={{uri:"https://media-public.canva.com/HcpQI/MADIYNHcpQI/2/tl.png"}}
+            style={styles.main_image_style}/>
+            <View style={styles.secondary_view}>
+              <Text style={styles.text_header_style}> Oh No ! </Text>
+              <Text style={styles.side_title_style}>
+                Sorry Your Email Has Expired.Swipe The Card To Delete An Email. Each Email Is Valid For 15 Minutes Only 
+              </Text>
+            </View>
+        </View>
+
+      </RBSheet>
+
       <View style={styles.main_email_box_view}>
         <View style={styles.inside_email_box_view}>
-          <Image source={{uri:"https://media-public.canva.com/adoso/MAB3gKadoso/2/tl.png"}} resizeMode="contain" style={styles.image_view} />
+        <Animated.View style={{...styles.image_view,transform: [{translateY: this.state.verticalVal}]}}>
+          <Image source={{uri:"https://media-public.canva.com/adoso/MAB3gKadoso/2/tl.png"}} resizeMode="contain" 
+          style={{height:"100%",width:"100%"}} />
+        </Animated.View>
           <View style={styles.new_email_text_and_button_View}>
             <Text style={styles.hi_there_text}>Hi There !</Text>
             <TouchableOpacity 
@@ -297,5 +349,33 @@ const styles = StyleSheet.create({
     fontSize:15,
     color:"gray",
     marginTop:"15%"
+  },
+  main_style_view_swipable:{
+    height:"80%",
+    width:"100%",
+    justifyContent:"center",
+    alignItems:"center",
+    flexDirection:"row"
+  },
+  main_image_style:{
+    height:"50%",
+    width:"30%"
+  },
+  text_header_style:{
+    color:"#F1F1F1",
+    fontSize:17,
+    textAlign: 'center'
+  },
+  side_title_style:{
+    color:"gray",
+    fontSize:15,
+    marginTop:"5%",
+    textAlign: 'center'
+  },
+  secondary_view:{
+    justifyContent:"center",
+    alignItems:"center",
+    height:"100%",
+    width:"50%"
   },
 })
