@@ -8,7 +8,8 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
-  Image
+  Image,
+  StatusBar
 } from "react-native"
 
 import HTML from 'react-native-render-html';
@@ -21,6 +22,7 @@ export default class ContentPage extends React.Component{
   }
 
   SeeMessage=()=>{
+    this.props.navigation.navigate("Terms")
     this.setState({ visiblity : false })
   }
 
@@ -46,12 +48,12 @@ export default class ContentPage extends React.Component{
       id:this.props.route.params.email_id,
       visiblity:true
     }
-    this.SeeMessage()
   }
 
   render(){
     return(
       <>
+      <StatusBar backgroundColor="#1A1A1F" barStyle="light-content"/>
         <ScrollView style={styles.container} >
           {this.state.isLoading ? <ActivityIndicator style={styles.ActivityIndicator_Style} color="#FFF" /> : (
             <View style={styles.text_container}>
@@ -62,7 +64,7 @@ export default class ContentPage extends React.Component{
         <SnackBar 
           visible={this.state.visiblity} 
           textMessage="Only Text Will Be Shown " actionHandler={this.SeeMessage} actionText="Know More"
-          backgroundColor="#572CE8" messageColor="#FFF" accentColor="#FFF" 
+          backgroundColor="#121212" messageColor="#FFF" accentColor="#FFF" autoHidingTime={3000}
         />
       </>
     )
@@ -80,8 +82,10 @@ const styles = StyleSheet.create({
     marginTop:"20%"
   },
   text_container:{
-    height:"100%",
-    width:"90%"
+    height:"90%",
+    width:"90%",
+    marginLeft:"8%",
+    marginTop:"10%"
   },
   text:{
     color:"#FFF"
