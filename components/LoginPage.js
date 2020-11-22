@@ -9,21 +9,49 @@ import {
   Dimensions,
   StyleSheet,
   Image,
-  StatusBar
+  StatusBar,
 } from "react-native"
 
 import Icon from "react-native-vector-icons/AntDesign"
 import RBSheet from "react-native-raw-bottom-sheet";
 import SwipeRender from "react-native-swipe-render";
+import NetInfo from "@react-native-community/netinfo";
 
 const Dev_Height = Dimensions.get('window').height
 const Dev_Width = Dimensions.get('window').width
 
 export default class LoginPage extends React.Component{
 
+  constructor(props){
+    super(props);
+    this.state={
+      button_text:"Let's Start"
+    }
+  }
+
+  InzialTest=()=>{
+    NetInfo.fetch().then(state => {
+      if (state.isConnected==false){
+        this.setState({ button_text : "Internet Required"})
+      }
+      else{
+        this.RBSheet.open()
+      }
+    });
+  }
+
   OnSignIn=()=>{
-    this.props.navigation.navigate("Email")
-    this.RBSheet.close()
+    NetInfo.fetch().then(state => {
+      if (state.isConnected==true){
+        this.setState({ button_text : "Let's Start"})
+        this.props.navigation.navigate("Email")        
+        this.RBSheet.close()
+      }
+      else{
+        this.setState({ button_text : "Internet Required"})
+      }
+    });
+      
   }
 
   onPressLogo=()=>{
@@ -31,7 +59,7 @@ export default class LoginPage extends React.Component{
   }
 
   componentDidMount=()=>{
-    this.RBSheet.open()
+    this.InzialTest()
   }
 
   render(){
@@ -135,7 +163,7 @@ export default class LoginPage extends React.Component{
         <View style={styles.google_signin_view}>
           <TouchableOpacity style={styles.google_signin_buttom} onPress={this.OnSignIn}>
             <Icon name="heart" size={20} color="#FFF" style={{marginLeft:"5%"}}/>
-            <Text style={styles.google_signin_text}> Let's Start </Text>
+            <Text style={styles.google_signin_text}> {this.state.button_text} </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
