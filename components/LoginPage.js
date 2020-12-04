@@ -29,29 +29,27 @@ export default class LoginPage extends React.Component{
     }
   }
 
-  InzialTest=()=>{
-    NetInfo.fetch().then(state => {
-      if (state.isConnected==false){
-        this.setState({ button_text : "Internet Required"})
-      }
-      else{
-        this.RBSheet.open()
-      }
-    });
-  }
-
   OnSignIn=()=>{
     NetInfo.fetch().then(state => {
       if (state.isConnected==true){
         this.setState({ button_text : "Let's Start"})
-        this.props.navigation.navigate("Email")        
-        this.RBSheet.close()
+        this.props.navigation.navigate("Email")
+      }
+      else{
+        this.setState({ button_text : "Internet Required"})        
+      }
+    });  
+  }
+
+  InzialTest=()=>{
+    NetInfo.fetch().then(state => {
+      if (state.isConnected==true){
+        this.RBSheet.open()
       }
       else{
         this.setState({ button_text : "Internet Required"})
       }
     });
-      
   }
 
   onPressLogo=()=>{
